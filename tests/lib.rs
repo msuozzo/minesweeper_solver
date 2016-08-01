@@ -4,7 +4,7 @@ extern crate minesweeper_solver;
 
 use minesweeper_solver::util::{abs_difference, is_adjacent};
 use minesweeper_solver::board::Board;
-use minesweeper_solver::cell::NormalCell;
+use minesweeper_solver::cell::{GameCell, NormalCell};
 use minesweeper_solver::random_board;
 
 
@@ -18,8 +18,8 @@ fn test_abs_difference() {
 
 #[test]
 fn test_is_adjacent() {
-    let x = 40;
-    let y = 20;
+    let x = 33;
+    let y = 39;
     let test = |pos, other| {
         is_adjacent(pos, other, x, y)
     };
@@ -58,6 +58,34 @@ fn test_is_adjacent() {
 
     // Not adjacent across row boundaries
     assert!(!test(x, x - 1));
+}
+
+#[test]
+fn test_adjacency_iter() {
+    let board: Board<NormalCell> = Board::new(NormalCell::new());
+    let get_adj_vec = |pos| {
+        board.adjacent_positions(pos).collect::<Vec<usize>>()
+    };
+    // Corner
+    assert_eq!(vec![1, board.x + 1, board.x], get_adj_vec(0));
+
+    // Edge
+    assert_eq!(vec![2, board.x + 2, board.x + 1, board.x, 0], get_adj_vec(1));
+
+    // Middle
+    assert_eq!(vec![0, 1, 2, board.x + 2, 2 * board.x + 2, 2 * board.x + 1, 2 * board.x, board.x], get_adj_vec(board.x + 1));
+}
+
+#[test]
+fn test_set_adjacent_mines() {
+    let mut board: Board<NormalCell> = Board::new(NormalCell::new());
+    board.get_absolute(0).set_mine(true);
+    board.set_adjacent_mines();
+
+    assert_eq!(1, board.get(0, 1).num_adjacent_mines());
+    assert_eq!(1, board.get(1, 1).num_adjacent_mines());
+    assert_eq!(1, board.get(1, 0).num_adjacent_mines());
+    assert_eq!(0, board.get(0, 0).num_adjacent_mines());
 }
 
 #[test]

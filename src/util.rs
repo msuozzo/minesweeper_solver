@@ -9,7 +9,7 @@ pub fn is_adjacent(position: usize, other_position: usize, max_x: usize, max_y: 
     if position > max_pos || other_position > max_pos
         || position == other_position
         || abs_difference(position / max_x, other_position / max_x) > 1
-        || abs_difference(position % max_y, other_position % max_y) > 1 {
+        || abs_difference(position % max_x, other_position % max_x) > 1 {
         false
     } else {
         true

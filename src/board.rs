@@ -2,9 +2,9 @@ use std::fmt;
 
 use itertools::Itertools;
 
-use cell::Cell;
+use cell::{Cell, GameCell};
 use iter::AbsoluteAdjacencyIterator;
-use util::{abs_difference, is_adjacent};
+use util::abs_difference;
 
 
 const X: usize = 20;
@@ -48,9 +48,17 @@ impl<T: Cell> Board<T> {
     pub fn adjacent_positions(&self, position: usize) -> AbsoluteAdjacencyIterator {
         AbsoluteAdjacencyIterator::new(position, self.x, self.y)
     }
+}
 
+impl<T: GameCell> Board<T> {
     pub fn set_adjacent_mines(&mut self) {
         let max_pos = self.x * self.y - 1;
+        for position in 0..max_pos {
+            let count = self.adjacent_positions(position).map(|adj_pos| {
+                if self.get_absolute(adj_pos).is_mine() { 1 } else { 0 }
+            }).fold(0, |a, b| a + b);
+            self.get_absolute(position).set_adjacent_mines(count);
+        }
     }
 }
 
@@ -63,4 +71,5 @@ impl<T: Cell> fmt::Display for Board<T> {
         write!(f, "{}", board_str)
     }
 }
+
 
